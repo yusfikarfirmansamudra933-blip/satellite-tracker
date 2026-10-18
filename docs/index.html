@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pelacak Satelit ESP32</title>
+<meta name="description" content="Mount pan-tilt ESP32 yang mengarahkan penunjuk ke satelit di langit secara real-time memakai SGP4, GPS, dan 2 motor stepper.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<nav>
+  <div class="wrap">
+    <a class="brand" href="./">🛰️ Pelacak Satelit</a>
+    <a class="link active" href="./">Proyek</a>
+    <a class="link" href="tracker.html">Pelacak Online</a>
+    <a class="link hide-sm" href="https://github.com/yusfikarfirmansamudra933-blip/satellite-tracker">Kode</a>
+  </div>
+</nav>
+
+<main class="wrap">
+  <section class="hero">
+    <span class="pill">ESP32 · SGP4 · GPS · 2× stepper</span>
+    <h1>Pelacak satelit buatan sendiri</h1>
+    <p class="lead">Mount pan-tilt yang menghitung posisi satelit seperti ISS, Tiangong, dan satelit cuaca,
+      lalu mengarahkan penunjuk tepat ke satelit itu di langit, secara real-time.</p>
+    <div class="actions">
+      <a class="btn" href="tracker.html">Coba pelacak online</a>
+      <a class="btn ghost" href="https://github.com/yusfikarfirmansamudra933-blip/satellite-tracker">Lihat kode di GitHub</a>
+    </div>
+  </section>
+
+  <h2>Cara kerja</h2>
+  <div class="card table-scroll">
+    <svg class="diagram" viewBox="0 0 860 250" role="img" aria-label="Diagram alur: CelesTrak dan GPS ke ESP32, lalu ke motor pan dan tilt">
+      <defs>
+        <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" fill="#4da3ff"/>
+        </marker>
+      </defs>
+      <g fill="#0d1422" stroke="#1f2c44" stroke-width="1.5">
+        <rect x="10" y="20" width="200" height="80" rx="10"/>
+        <rect x="10" y="150" width="200" height="80" rx="10"/>
+        <rect x="320" y="70" width="220" height="110" rx="10" stroke="#4da3ff"/>
+        <rect x="650" y="20" width="200" height="80" rx="10"/>
+        <rect x="650" y="150" width="200" height="80" rx="10"/>
+      </g>
+      <g fill="#e6ebf3" font-size="16" font-weight="600" text-anchor="middle">
+        <text x="110" y="55">CelesTrak</text>
+        <text x="110" y="185">Modul GPS</text>
+        <text x="430" y="110">ESP32</text>
+        <text x="750" y="55">Motor PAN</text>
+        <text x="750" y="185">Motor TILT</text>
+      </g>
+      <g fill="#93a3bb" font-size="13" text-anchor="middle">
+        <text x="110" y="78">data orbit (TLE) via WiFi</text>
+        <text x="110" y="208">lokasi + waktu UTC</text>
+        <text x="430" y="134">hitung posisi satelit</text>
+        <text x="430" y="154">SGP4 / SDP4, 20× per detik</text>
+        <text x="750" y="78">azimuth (0° = utara)</text>
+        <text x="750" y="208">elevasi (0° = horizon)</text>
+      </g>
+      <g stroke="#4da3ff" stroke-width="2" fill="none" marker-end="url(#ar)">
+        <path d="M210,60 C260,60 270,100 318,105"/>
+        <path d="M210,190 C260,190 270,150 318,145"/>
+        <path d="M540,105 C590,100 600,60 648,60"/>
+        <path d="M540,145 C590,150 600,190 648,190"/>
+      </g>
+      <text x="595" y="125" fill="#93a3bb" font-size="12" text-anchor="middle">74HC595 + ULN2003</text>
+    </svg>
+  </div>
+
+  <div class="grid" style="margin-top:16px">
+    <div class="card"><h3>🎯 Akurat</h3><p class="muted">Posisi yang dihitung ESP32 dibandingkan dengan library astronomi Skyfield: selisih di bawah 0,05°.</p></div>
+    <div class="card"><h3>🔄 Ikut terus</h3><p class="muted">Pan selalu mengikuti arah satelit, bahkan saat satelit di sisi lain bumi. Kabel tidak terpelintir berkat putar balik otomatis.</p></div>
+    <div class="card"><h3>📡 Tanpa internet di lapangan</h3><p class="muted">GPS memberi lokasi dan waktu. Internet hanya perlu sesekali untuk memperbarui data orbit.</p></div>
+    <div class="card"><h3>📱 Kontrol dari HP</h3><p class="muted">ESP32 memancarkan WiFi sendiri. Buka 192.168.4.1 untuk peta langit, jadwal lintasan, dan kalibrasi.</p></div>
+  </div>
+
+  <h2>Hasil uji</h2>
+  <p class="muted">Diukur langsung di ESP32 dengan TLE yang sama, lokasi Jakarta, dibandingkan dengan Skyfield di laptop.</p>
+  <div class="card table-scroll">
+    <table>
+      <thead><tr><th>Kondisi</th><th>ESP32 (az / el)</th><th>Skyfield (az / el)</th><th>Selisih</th></tr></thead>
+      <tbody>
+        <tr><td>ISS, di bawah horizon</td><td class="mono">325,70° / −36,39°</td><td class="mono">325,70° / −36,39°</td><td class="good">0,00°</td></tr>
+        <tr><td>ISS, puncak lintasan</td><td class="mono">57,84° / 10,39°</td><td class="mono">57,86° / 10,39°</td><td class="good">0,02°</td></tr>
+        <tr><td>ISS, puncak + 90 detik</td><td class="mono">82,05° / 8,04°</td><td class="mono">82,06° / 8,04°</td><td class="good">0,01°</td></tr>
+        <tr><td>Himawari-9 (geostasioner)</td><td class="mono">80,90° / 49,95°</td><td class="mono">80,90° / 49,95°</td><td class="good">0,00°</td></tr>
+        <tr><td>Simulasi pelacakan lintasan ISS</td><td colspan="2">mount mengikuti satelit dengan selisih</td><td class="good">≤ 0,1°</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Komponen</h2>
+  <div class="grid">
+    <div class="card">
+      <h3>Elektronik</h3>
+      <ul class="muted">
+        <li>ESP32 DevKit</li>
+        <li>2× motor stepper 28BYJ-48 + 2× driver ULN2003</li>
+        <li>1× IC 74HC595 (shift register)</li>
+        <li>Modul GPS NEO-6M (opsional)</li>
+        <li>Power supply 5V 2A, kapasitor 100–470µF</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Mekanik</h3>
+      <ul class="muted">
+        <li>Bracket pan-tilt</li>
+        <li>Penunjuk: panah atau sedotan (jangan laser)</li>
+        <li>Kabel motor tilt dibuat kendur untuk 1,5 putaran</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>Wiring</h2>
+  <div class="grid">
+    <div class="card table-scroll">
+      <h3>74HC595 → ESP32</h3>
+      <table>
+        <tr><th>74HC595</th><th>Ke</th></tr>
+        <tr><td>16 VCC, 10 MR</td><td>3.3V</td></tr>
+        <tr><td>8 GND, 13 OE</td><td>GND</td></tr>
+        <tr><td>14 DS</td><td>GPIO 13</td></tr>
+        <tr><td>11 SHCP</td><td>GPIO 14</td></tr>
+        <tr><td>12 STCP</td><td>GPIO 4</td></tr>
+      </table>
+    </div>
+    <div class="card table-scroll">
+      <h3>74HC595 → ULN2003</h3>
+      <table>
+        <tr><th>74HC595</th><th>Ke</th></tr>
+        <tr><td>Q0–Q3 (pin 15, 1, 2, 3)</td><td>IN1–IN4 PAN</td></tr>
+        <tr><td>Q4–Q7 (pin 4, 5, 6, 7)</td><td>IN1–IN4 TILT</td></tr>
+        <tr><td>ULN2003 + / −</td><td>5V / GND power supply</td></tr>
+      </table>
+    </div>
+    <div class="card table-scroll">
+      <h3>GPS → ESP32</h3>
+      <table>
+        <tr><th>GPS</th><th>Ke</th></tr>
+        <tr><td>VCC</td><td>3.3V atau 5V (sesuai modul)</td></tr>
+        <tr><td>GND</td><td>GND</td></tr>
+        <tr><td>TX</td><td>GPIO 16 (RX2)</td></tr>
+        <tr><td>RX</td><td>GPIO 17 (TX2)</td></tr>
+      </table>
+    </div>
+  </div>
+  <p class="muted">GND power supply motor wajib disambung ke GND ESP32.</p>
+
+  <h2>Cara pakai</h2>
+  <ol class="steps">
+    <li><strong>Upload firmware</strong> dengan VS Code + PlatformIO: buka folder proyek, klik ✓ (Build), lalu → (Upload).</li>
+    <li><strong>Sambungkan HP</strong> ke WiFi <code>SatTracker</code> (password <code>satelit123</code>), lalu buka <code>http://192.168.4.1</code>.</li>
+    <li><strong>Isi WiFi internet</strong> agar ESP32 bisa mengunduh data orbit dan jam. Tanpa GPS, isi juga <em>Lokasi cadangan</em>.</li>
+    <li><strong>Kalibrasi</strong>: arahkan penunjuk ke utara dan datar memakai kompas HP, lalu tekan <em>Set utara</em> dan <em>Set datar</em>. Uji dengan GOTO azimuth 90° (harus ke timur).</li>
+    <li><strong>Pilih satelit</strong> lalu tekan <em>TRACK</em>. Penunjuk terus mengikuti satelit. Lintasan bertanda 👁 bisa dilihat dengan mata.</li>
+  </ol>
+
+  <h2>Batasan</h2>
+  <ul class="muted">
+    <li>Lintasan tepat di atas kepala (elevasi &gt; ~80°) bergerak lebih cepat dari batas 28BYJ-48 (±60°/s), jadi penunjuk sempat tertinggal.</li>
+    <li>Gearbox 28BYJ-48 punya backlash 1–3°: cukup untuk penunjuk visual, kurang untuk antena yang sangat terarah.</li>
+    <li>Data orbit (TLE) sebaiknya diperbarui seminggu sekali.</li>
+  </ul>
+
+  <footer>
+    Data orbit dari <a href="https://celestrak.org">CelesTrak</a>. Perhitungan orbit di ESP32 memakai library
+    <a href="https://github.com/Hopperpop/Sgp4-Library">Sgp4</a>. Pelacak online memakai
+    <a href="https://github.com/shashwatak/satellite-js">satellite.js</a>.
+  </footer>
+</main>
+</body>
+</html>

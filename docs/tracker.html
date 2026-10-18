@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pelacak Satelit Online</title>
+<meta name="description" content="Lihat posisi ISS dan satelit lain di langit dari lokasimu, beserta jadwal lintasan yang bisa dilihat dengan mata.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<nav>
+  <div class="wrap">
+    <a class="brand" href="./">🛰️ Pelacak Satelit</a>
+    <a class="link" href="./">Proyek</a>
+    <a class="link active" href="tracker.html">Pelacak Online</a>
+    <a class="link hide-sm" href="https://github.com/yusfikarfirmansamudra933-blip/satellite-tracker">Kode</a>
+  </div>
+</nav>
+
+<main class="wrap">
+  <div class="app">
+    <section>
+      <div class="controls">
+        <select id="preset" aria-label="Pilih satelit">
+          <optgroup label="Terlihat mata">
+            <option value="25544">ISS</option>
+            <option value="48274">Tiangong (CSS)</option>
+            <option value="20580">Hubble</option>
+          </optgroup>
+          <optgroup label="Cuaca">
+            <option value="57166">Meteor-M2 3</option>
+            <option value="59051">Meteor-M2 4</option>
+            <option value="25338">NOAA 15</option>
+            <option value="28654">NOAA 18</option>
+            <option value="33591">NOAA 19</option>
+          </optgroup>
+          <optgroup label="Radio amatir">
+            <option value="27607">SO-50</option>
+          </optgroup>
+          <optgroup label="Geostasioner (diam)">
+            <option value="41836">Himawari-9</option>
+            <option value="43587">Merah Putih (Telkom-4)</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="controls" style="margin-top:8px">
+        <input id="norad" type="number" inputmode="numeric" placeholder="NORAD ID lain">
+        <button class="btn" id="useNorad">Lacak</button>
+      </div>
+      <div class="status" id="status"></div>
+      <canvas id="sky" width="380" height="380" aria-label="Peta langit"></canvas>
+      <div class="legend">
+        <span style="--c:#ffd54f">satelit</span>
+        <span style="--c:#4da3ff">jalur lintasan</span>
+        <span style="--c:#ff9e40">matahari</span>
+      </div>
+    </section>
+
+    <section>
+      <h1 id="satName" style="margin:0;font-size:26px">Memuat…</h1>
+      <p class="big" id="headline"></p>
+      <dl class="stats">
+        <div><dt>Azimuth</dt><dd id="az">–</dd></div>
+        <div><dt>Elevasi</dt><dd id="el">–</dd></div>
+        <div><dt>Jarak</dt><dd id="range">–</dd></div>
+        <div><dt>Ketinggian</dt><dd id="alt">–</dd></div>
+        <div><dt>Kecepatan</dt><dd id="speed">–</dd></div>
+        <div><dt>Di atas</dt><dd id="sub">–</dd></div>
+      </dl>
+
+      <h2 style="margin-top:28px;font-size:20px">Lintasan berikutnya</h2>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Mulai</th><th>Durasi</th><th>El maks</th><th>Arah</th><th></th></tr></thead>
+          <tbody id="passes"><tr><td colspan="5" class="muted">Menghitung…</td></tr></tbody>
+        </table>
+      </div>
+      <p class="muted" style="font-size:14px">👁 = satelit terkena sinar matahari saat langit di tempatmu sudah gelap, jadi bisa dilihat dengan mata telanjang (jika cuaca cerah).</p>
+
+      <h2 style="margin-top:28px;font-size:20px">Lokasi kamu</h2>
+      <div class="controls">
+        <input id="lat" type="number" step="any" placeholder="Lintang" aria-label="Lintang">
+        <input id="lon" type="number" step="any" placeholder="Bujur" aria-label="Bujur">
+        <button class="btn ghost" id="saveLoc">Simpan</button>
+      </div>
+      <div class="controls" style="margin-top:8px">
+        <button class="btn ghost" id="gps" style="flex:1">📍 Pakai lokasi HP</button>
+      </div>
+      <p class="muted" id="locInfo" style="font-size:14px"></p>
+      <p class="muted" id="tleInfo" style="font-size:13px"></p>
+    </section>
+  </div>
+
+  <footer>
+    Data orbit dari <a href="https://celestrak.org">CelesTrak</a>, dihitung di browser dengan
+    <a href="https://github.com/shashwatak/satellite-js">satellite.js</a> (SGP4/SDP4).
+    Ini versi online dari <a href="./">pelacak satelit ESP32</a>.
+  </footer>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/satellite.js/5.0.0/satellite.min.js"></script>
+<script src="tracker.js"></script>
+</body>
+</html>
