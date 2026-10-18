@@ -5,6 +5,9 @@
 // Access Point selalu aktif: sambungkan HP ke WiFi ini, buka http://192.168.4.1
 #define AP_SSID "SatTracker"
 #define AP_PASS "12345678"    // minimal 8 karakter
+// Daya pancar WiFi. Rendah = arus lebih kecil (cegah brownout). Pilihan: WIFI_POWER_2dBm,
+// WIFI_POWER_5dBm, WIFI_POWER_8_5dBm, WIFI_POWER_11dBm, ... WIFI_POWER_19_5dBm (maksimum)
+#define WIFI_TX_POWER WIFI_POWER_8_5dBm
 
 // WiFi rumah / hotspot HP untuk mengunduh data orbit (TLE) dan jam internet.
 // Boleh dikosongkan; bisa juga diisi lewat halaman web.
@@ -37,7 +40,7 @@
 // ---------------- Motor 28BYJ-48 ----------------
 #define STEPS_PER_REV    4096.0f  // half-step
 #define MAX_SPEED_DPS    60.0f    // derajat/detik; di atas ini 28BYJ-48 mulai selip
-#define ACCEL_DPS2       120.0f   // percepatan, derajat/detik^2
+#define ACCEL_DPS2       60.0f    // percepatan, derajat/detik^2 (pelan = lonjakan arus lebih kecil)
 #define TICK_US          500      // periode timer motor (2000 Hz)
 #define RELEASE_AFTER_MS 0        // 0 = koil selalu ditahan (posisi tidak bergeser saat menunggu satelit)
 

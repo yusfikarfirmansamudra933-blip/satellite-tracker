@@ -434,6 +434,9 @@ void setup() {
 
   WiFi.mode(WIFI_AP_STA);
   WiFi.softAP(AP_SSID, AP_PASS);
+  // Daya pancar rendah: lonjakan arus WiFi jauh lebih kecil (mencegah brownout saat motor bergerak),
+  // jangkauan masih cukup untuk HP dalam radius beberapa meter.
+  WiFi.setTxPower(WIFI_TX_POWER);
   if (cfg.staSsid[0]) WiFi.begin(cfg.staSsid, cfg.staPass);
   Serial.printf("WiFi \"%s\" aktif, buka http://%s\n", AP_SSID, WiFi.softAPIP().toString().c_str());
 
