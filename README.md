@@ -10,8 +10,8 @@ real-time: ISS, Tiangong, Hubble, satelit cuaca, satelit radio amatir, sampai sa
 CelesTrak (internet) ──TLE──► ESP32 ◄── GPS (lokasi + waktu UTC)
                                │  hitung posisi satelit (SGP4/SDP4)
                                ▼
-                 74HC595 ─► ULN2003 ─► 28BYJ-48 PAN  (azimuth, 0° = utara)
-                         └► ULN2003 ─► 28BYJ-48 TILT (elevasi, 0° = horizon)
+                   ├──► ULN2003 ─► 28BYJ-48 PAN  (azimuth, 0° = utara)
+                   └──► ULN2003 ─► 28BYJ-48 TILT (elevasi, 0° = horizon)
 ```
 
 - **PAN** memutar penunjuk ke arah mata angin (azimuth).
@@ -24,15 +24,13 @@ selisih posisi **< 0,05°**, dan prediksi lintasan cocok sampai menitnya.
 
 ## Komponen
 
-Sama seperti mount drone tracker sebelumnya, ditambah GPS:
-
 - ESP32 DevKit
-- 74HC595 + 2× ULN2003 + 2× 28BYJ-48 (wiring motor **tidak berubah**)
+- 2× ULN2003 + 2× 28BYJ-48, disambung **langsung** ke ESP32 (tanpa IC tambahan)
 - Modul GPS (NEO-6M atau sejenis, output NMEA 9600 baud)
 - Penunjuk: panah, sedotan, atau tabung kecil sebagai "teropong bidik". **Jangan pakai laser**,
   karena berbahaya bagi pilot pesawat.
 
-Kabel kamera OV7670 dicabut semua.
+Kabel kamera OV7670 dan IC 74HC595 tidak dipakai lagi, cabut semua.
 
 ## Wiring
 
@@ -48,19 +46,21 @@ Kabel kamera OV7670 dicabut semua.
 TX GPS ke RX ESP32, dan sebaliknya. Antena keramik GPS harus **menghadap ke langit**. Di dalam
 ruangan, GPS biasanya tidak dapat sinyal.
 
-### 74HC595 → ULN2003 (sama seperti sebelumnya)
+### ESP32 → ULN2003 (langsung)
 
-| 74HC595 | Sambung ke |
-|---|---|
-| 16 (VCC), 10 (MR) | 3.3V |
-| 8 (GND), 13 (OE) | GND |
-| 14 (DS) | GPIO 13 |
-| 11 (SHCP) | GPIO 14 |
-| 12 (STCP) | GPIO 4 |
-| Q0–Q3 (pin 15, 1, 2, 3) | IN1–IN4 driver **PAN** |
-| Q4–Q7 (pin 4, 5, 6, 7) | IN1–IN4 driver **TILT** |
+| ESP32 | Driver **PAN** | | ESP32 | Driver **TILT** |
+|---|---|---|---|---|
+| GPIO 13 | IN1 | | GPIO 25 | IN1 |
+| GPIO 14 | IN2 | | GPIO 33 | IN2 |
+| GPIO 27 | IN3 | | GPIO 32 | IN3 |
+| GPIO 26 | IN4 | | GPIO 23 | IN4 |
 
-Daya motor dari power supply 5V, dengan GND tersambung ke GND ESP32.
+- `+` dan `−` kedua ULN2003 → **5V** dan GND power supply.
+- **GND power supply wajib disambung ke GND ESP32.**
+- Pasang kapasitor 100–470µF di antara 5V dan GND, dekat driver motor.
+
+Masih punya rangkaian 74HC595? Ubah `USE_74HC595` menjadi `1` di [src/config.h](src/config.h)
+(DS = GPIO 13, SHCP = GPIO 14, STCP = GPIO 4).
 
 ### Mekanik
 

@@ -21,8 +21,15 @@
 #define DEFAULT_LON 106.8166
 #define DEFAULT_ALT 10.0
 
-// ---------------- 74HC595 -> 2x ULN2003 ----------------
-// Q0..Q3 -> IN1..IN4 driver PAN, Q4..Q7 -> IN1..IN4 driver TILT
+// ---------------- Driver motor ULN2003 ----------------
+// 0 = ULN2003 langsung ke pin ESP32 (tanpa IC tambahan), 1 = lewat shift register 74HC595
+#define USE_74HC595 0
+
+// Tanpa 74HC595: pin ESP32 untuk IN1, IN2, IN3, IN4 masing-masing driver
+#define PAN_PINS  {13, 14, 27, 26}
+#define TILT_PINS {25, 33, 32, 23}
+
+// Dengan 74HC595: Q0..Q3 -> IN1..IN4 driver PAN, Q4..Q7 -> IN1..IN4 driver TILT
 #define SR_DATA  13  // pin 14 (DS)
 #define SR_CLOCK 14  // pin 11 (SHCP)
 #define SR_LATCH 4   // pin 12 (STCP)

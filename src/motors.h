@@ -1,5 +1,5 @@
 #pragma once
-// Driver 2 motor 28BYJ-48 lewat satu 74HC595 -> 2x ULN2003.
+// Driver 2 motor 28BYJ-48 lewat 2x ULN2003 (langsung ke pin ESP32, atau lewat 74HC595).
 // Motor digerakkan dengan kecepatan (derajat/detik) oleh timer 2000 Hz,
 // dengan percepatan bertahap dan batas sudut.
 
@@ -32,12 +32,25 @@ uint32_t lastMoveMs = 0;
 uint8_t lastBits = 0xFF;
 esp_timer_handle_t timer;
 
+#if !USE_74HC595
+const uint8_t PAN_COILS[4] = PAN_PINS;
+const uint8_t TILT_COILS[4] = TILT_PINS;
+// bit 0..3 = IN1..IN4 PAN, bit 4..7 = IN1..IN4 TILT
+uint8_t coilPin(int bit) { return bit < 4 ? PAN_COILS[bit] : TILT_COILS[bit - 4]; }
+#endif
+
 void writeBits(uint8_t bits) {
   if (bits == lastBits) return;
-  lastBits = bits;
+#if USE_74HC595
   digitalWrite(SR_LATCH, LOW);
   shiftOut(SR_DATA, SR_CLOCK, MSBFIRST, bits);
   digitalWrite(SR_LATCH, HIGH);
+#else
+  uint8_t changed = bits ^ lastBits;
+  for (int i = 0; i < 8; i++)
+    if (changed & (1 << i)) digitalWrite(coilPin(i), (bits >> i) & 1);
+#endif
+  lastBits = bits;
 }
 
 void tick(void *) {
@@ -80,9 +93,17 @@ void tick(void *) {
 }
 
 void begin() {
+#if USE_74HC595
   pinMode(SR_DATA, OUTPUT);
   pinMode(SR_CLOCK, OUTPUT);
   pinMode(SR_LATCH, OUTPUT);
+#else
+  for (int i = 0; i < 8; i++) {
+    uint8_t p = coilPin(i);
+    pinMode(p, OUTPUT);
+    digitalWrite(p, LOW);
+  }
+#endif
   writeBits(0);
 
   axes[0].minStep = lroundf(PAN_MIN_DEG * STEPS_PER_DEG);

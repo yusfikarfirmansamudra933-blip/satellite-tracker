@@ -65,7 +65,7 @@
         <path d="M540,105 C590,100 600,60 648,60"/>
         <path d="M540,145 C590,150 600,190 648,190"/>
       </g>
-      <text x="595" y="125" fill="#93a3bb" font-size="12" text-anchor="middle">74HC595 + ULN2003</text>
+      <text x="595" y="125" fill="#93a3bb" font-size="12" text-anchor="middle">2× ULN2003</text>
     </svg>
   </div>
 
@@ -98,7 +98,6 @@
       <ul class="muted">
         <li>ESP32 DevKit</li>
         <li>2× motor stepper 28BYJ-48 + 2× driver ULN2003</li>
-        <li>1× IC 74HC595 (shift register)</li>
         <li>Modul GPS NEO-6M (opsional)</li>
         <li>Power supply 5V 2A, kapasitor 100–470µF</li>
       </ul>
@@ -116,23 +115,23 @@
   <h2>Wiring</h2>
   <div class="grid">
     <div class="card table-scroll">
-      <h3>74HC595 → ESP32</h3>
+      <h3>ESP32 → ULN2003 PAN</h3>
       <table>
-        <tr><th>74HC595</th><th>Ke</th></tr>
-        <tr><td>16 VCC, 10 MR</td><td>3.3V</td></tr>
-        <tr><td>8 GND, 13 OE</td><td>GND</td></tr>
-        <tr><td>14 DS</td><td>GPIO 13</td></tr>
-        <tr><td>11 SHCP</td><td>GPIO 14</td></tr>
-        <tr><td>12 STCP</td><td>GPIO 4</td></tr>
+        <tr><th>ESP32</th><th>Ke</th></tr>
+        <tr><td>GPIO 13</td><td>IN1</td></tr>
+        <tr><td>GPIO 14</td><td>IN2</td></tr>
+        <tr><td>GPIO 27</td><td>IN3</td></tr>
+        <tr><td>GPIO 26</td><td>IN4</td></tr>
       </table>
     </div>
     <div class="card table-scroll">
-      <h3>74HC595 → ULN2003</h3>
+      <h3>ESP32 → ULN2003 TILT</h3>
       <table>
-        <tr><th>74HC595</th><th>Ke</th></tr>
-        <tr><td>Q0–Q3 (pin 15, 1, 2, 3)</td><td>IN1–IN4 PAN</td></tr>
-        <tr><td>Q4–Q7 (pin 4, 5, 6, 7)</td><td>IN1–IN4 TILT</td></tr>
-        <tr><td>ULN2003 + / −</td><td>5V / GND power supply</td></tr>
+        <tr><th>ESP32</th><th>Ke</th></tr>
+        <tr><td>GPIO 25</td><td>IN1</td></tr>
+        <tr><td>GPIO 33</td><td>IN2</td></tr>
+        <tr><td>GPIO 32</td><td>IN3</td></tr>
+        <tr><td>GPIO 23</td><td>IN4</td></tr>
       </table>
     </div>
     <div class="card table-scroll">
@@ -146,7 +145,7 @@
       </table>
     </div>
   </div>
-  <p class="muted">GND power supply motor wajib disambung ke GND ESP32.</p>
+  <p class="muted">Kedua ULN2003 diberi daya 5V dari power supply. GND power supply wajib disambung ke GND ESP32.</p>
 
   <h2>Cara pakai</h2>
   <ol class="steps">
