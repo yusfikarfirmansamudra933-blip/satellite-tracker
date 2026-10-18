@@ -38,11 +38,14 @@
 #define SR_LATCH 4   // pin 12 (STCP)
 
 // ---------------- Motor 28BYJ-48 ----------------
-#define STEPS_PER_REV    4096.0f  // half-step
+// 1 = wave drive: hanya 1 koil aktif, arus motor setengahnya (cegah brownout), 2048 langkah/putaran
+// 0 = half-step: 2 koil, gerak lebih halus & torsi lebih besar, 4096 langkah/putaran
+#define WAVE_DRIVE       1
+#define STEPS_PER_REV    (WAVE_DRIVE ? 2048.0f : 4096.0f)
 #define MAX_SPEED_DPS    60.0f    // derajat/detik; di atas ini 28BYJ-48 mulai selip
 #define ACCEL_DPS2       60.0f    // percepatan, derajat/detik^2 (pelan = lonjakan arus lebih kecil)
 #define TICK_US          500      // periode timer motor (2000 Hz)
-#define RELEASE_AFTER_MS 0        // 0 = koil selalu ditahan (posisi tidak bergeser saat menunggu satelit)
+#define RELEASE_AFTER_MS 1500     // matikan koil setelah diam selama ini (gearbox menahan posisi); 0 = selalu ditahan
 
 // Batas gerak dari posisi nol. PAN 0 = utara (setelah "Set utara"), TILT 0 = horizon.
 #define PAN_MIN_DEG  -270.0f  // 1,5 putaran total: lintasan apa pun selalu muat tanpa putar balik (beri kabel kendur)

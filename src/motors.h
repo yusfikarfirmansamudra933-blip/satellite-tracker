@@ -12,8 +12,14 @@ namespace motors {
 const float STEPS_PER_DEG = STEPS_PER_REV / 360.0f;
 const float TICK_S = TICK_US * 1e-6f;
 
-// Urutan half-step untuk IN1..IN4 (bit0 = IN1)
-const uint8_t HALF_STEP[8] = {0b0001, 0b0011, 0b0010, 0b0110, 0b0100, 0b1100, 0b1000, 0b1001};
+// Urutan koil untuk IN1..IN4 (bit0 = IN1)
+#if WAVE_DRIVE
+const uint8_t SEQ[4] = {0b0001, 0b0010, 0b0100, 0b1000};  // 1 koil aktif
+const int SEQ_MASK = 3;
+#else
+const uint8_t SEQ[8] = {0b0001, 0b0011, 0b0010, 0b0110, 0b0100, 0b1100, 0b1000, 0b1001};  // half-step
+const int SEQ_MASK = 7;
+#endif
 
 struct Axis {
   volatile int32_t pos;   // posisi, langkah
@@ -26,7 +32,7 @@ struct Axis {
 Axis axes[2];  // 0 = pan, 1 = tilt
 volatile bool setPosPending[2] = {false, false};
 volatile int32_t setPosValue[2] = {0, 0};
-volatile bool releaseRequest = false;
+volatile bool releaseRequest = true;  // koil mati sampai ada perintah gerak pertama
 volatile bool inverted[2] = {false, false};  // balik arah putar tanpa mengubah koordinat sudut
 uint32_t lastMoveMs = 0;
 uint8_t lastBits = 0xFF;
@@ -87,7 +93,7 @@ void tick(void *) {
   if (hold) {
     int32_t p0 = inverted[0] ? -axes[0].pos : axes[0].pos;
     int32_t p1 = inverted[1] ? -axes[1].pos : axes[1].pos;
-    bits = HALF_STEP[p0 & 7] | (HALF_STEP[p1 & 7] << 4);
+    bits = SEQ[p0 & SEQ_MASK] | (SEQ[p1 & SEQ_MASK] << 4);
   }
   writeBits(bits);
 }
