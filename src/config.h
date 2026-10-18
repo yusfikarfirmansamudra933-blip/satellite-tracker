@@ -4,7 +4,7 @@
 // ---------------- WiFi ----------------
 // Access Point selalu aktif: sambungkan HP ke WiFi ini, buka http://192.168.4.1
 #define AP_SSID "SatTracker"
-#define AP_PASS "satelit123"  // minimal 8 karakter
+#define AP_PASS "12345678"    // minimal 8 karakter
 
 // WiFi rumah / hotspot HP untuk mengunduh data orbit (TLE) dan jam internet.
 // Boleh dikosongkan; bisa juga diisi lewat halaman web.

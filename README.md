@@ -79,7 +79,7 @@ Masih punya rangkaian 74HC595? Ubah `USE_74HC595` menjadi `1` di [src/config.h](
 ## Pemakaian pertama
 
 ### 1. Sambungkan ke internet (untuk data orbit)
-1. Di HP, sambungkan ke WiFi **`SatTracker`** (password `satelit123`), lalu buka `http://192.168.4.1`.
+1. Di HP, sambungkan ke WiFi **`SatTracker`** (password `12345678`), lalu buka `http://192.168.4.1`.
 2. Di bagian **WiFi internet**, isi nama dan password WiFi rumah atau hotspot HP lain, lalu tekan **Simpan**.
 3. ESP32 tersambung ke internet, mengunduh TLE, dan menyetel jam. Status ada di layar.
 
@@ -148,7 +148,7 @@ untuk menguji kalibrasi: posisinya tetap, jadi bisa dicek dengan aplikasi sateli
 
 | Setelan | Default | Keterangan |
 |---|---|---|
-| `AP_SSID` / `AP_PASS` | SatTracker / satelit123 | WiFi yang dipancarkan ESP32 |
+| `AP_SSID` / `AP_PASS` | SatTracker / 12345678 | WiFi yang dipancarkan ESP32 |
 | `STA_SSID` / `STA_PASS` | kosong | WiFi internet (bisa juga diisi dari web) |
 | `DEFAULT_LAT/LON/ALT` | Jakarta | Lokasi jika GPS belum fix (bisa diubah dari web) |
 | `PAN_MIN/MAX_DEG` | ±270° | Batas putaran pan |
